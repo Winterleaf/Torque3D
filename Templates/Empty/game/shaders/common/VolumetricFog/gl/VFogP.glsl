@@ -55,7 +55,11 @@ void main()
 	float front = tex2D(frontBuffer,uvscreen).r;
 
 	if (depth <= front)
+	{
 		OUT_col = vec4(0,0,0,0);
+		return;
+	}
+	
 	else if ( obj_test < depth )
 		depth = obj_test;
 	if ( front >= 0.0)
