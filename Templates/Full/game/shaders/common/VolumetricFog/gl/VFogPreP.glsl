@@ -1,13 +1,5 @@
 //-----------------------------------------------------------------------------
-// Copyright (c) 2014 R.G.S. - Richards Game Studio, the Netherlands
-//					  http://www.richardsgamestudio.com/
-//
-// If you find this code useful or you are feeling particularly generous I
-// would ask that you please go to http://www.richardsgamestudio.com/ then
-// choose Donations from the menu on the left side and make a donation to
-// Richards Game Studio. It will be highly appreciated.
-//
-// The MIT License:
+// Copyright (c) 2012 GarageGames, LLC
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -28,18 +20,18 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-// Volumetric Fog prepass pixel shader V1.00
-
 #include "../../gl/hlslCompat.glsl"
 
-in vec4 position;
+in vec4 _hpos;
+#define IN_hpos _hpos
+
 out vec4 OUT_col;
 
 void main()
 {
    float OUT;
-   clip( position.w );
-   OUT = position.w;
+   clip( IN_hpos.w );
+   OUT = IN_hpos.w;
 
    OUT_col = vec4(OUT,0,0,1);
 }

@@ -1,13 +1,5 @@
 //-----------------------------------------------------------------------------
-// Copyright (c) 2014 R.G.S. - Richards Game Studio, the Netherlands
-//					  http://www.richardsgamestudio.com/
-//
-// If you find this code useful or you are feeling particularly generous I
-// would ask that you please go to http://www.richardsgamestudio.com/ then
-// choose Donations from the menu on the left side and make a donation to
-// Richards Game Studio. It will be highly appreciated.
-//
-// The MIT License:
+// Copyright (c) 2012 GarageGames, LLC
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -27,8 +19,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
-
-// Volumetric Fog final pixel shader V2.00
 
 #include "../../gl/hlslCompat.glsl"
 #include "shadergen:/autogenConditioners.h"
@@ -51,12 +41,13 @@ uniform float numtiles;
 uniform float fadesize;
 uniform vec2 PixelSize;
 
-in vec4 position;
+in vec4 _hpos;
+#define IN_hpos _hpos
 out vec4 OUT_col;
 
 void main()
 {
-	vec2 uvscreen=((position.xy/position.w) + 1.0 ) / 2.0;
+	vec2 uvscreen=((IN_hpos.xy/IN_hpos.w) + 1.0 ) / 2.0;
 	uvscreen.y = 1.0 - uvscreen.y;
 	
 	float obj_test = prepassUncondition( prepassTex, uvscreen).w * preBias;

@@ -1,13 +1,5 @@
 //-----------------------------------------------------------------------------
-// Copyright (c) 2014 R.G.S. - Richards Game Studio, the Netherlands
-//					  http://www.richardsgamestudio.com/
-//
-// If you find this code useful or you are feeling particularly generous I
-// would ask that you please go to http://www.richardsgamestudio.com/ then
-// choose Donations from the menu on the left side and make a donation to
-// Richards Game Studio. It will be highly appreciated.
-//
-// The MIT License:
+// Copyright (c) 2012 GarageGames, LLC
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -28,18 +20,19 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-// Volumetric Fog final vertex shader V1.00
-
 #include "../../gl/hlslCompat.glsl"
 
-out vec4 position;
-in vec4 _position;
+in vec4 vPosition;
+#define IN_position vPosition
+
+out vec4 _hpos;
+#define OUT_hpos _hpos
 
 uniform mat4 modelView;
 
 void main()    
 {  
-	position = tMul(modelView, _position);
-	gl_Position = position;
+	OUT_hpos = tMul(modelView, IN_position);
+	gl_Position = OUT_hpos;
 	correctSSP(gl_Position);
 }
