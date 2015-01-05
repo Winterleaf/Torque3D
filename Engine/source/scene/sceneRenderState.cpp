@@ -165,93 +165,102 @@ void SceneRenderState::renderObjects( SceneObject** objects, U32 numObjects )
 	   }
 	   else
 	   {
-         cameraObject = connection->getCameraObject();
-         //Variables needed for culling
-         fOV = cameraObject->getCameraFov();
-         fOV = fOV < 90 ? 90.0f : fOV +=30;
+		 if(connection->isFirstPerson())
+		 {
+			 cameraObject = connection->getCameraObject();
+			 //Variables needed for culling
+			 fOV = cameraObject->getCameraFov();
+			 fOV = fOV < 90 ? 90.0f : fOV +=30;
         
-         //Near and far plane distances
-         nearDist = this->getNearPlane(); 
-         farDist =  this->getFarPlane();
+			 //Near and far plane distances
+			 nearDist = this->getNearPlane(); 
+			 farDist =  this->getFarPlane();
 
-         //If the override > 0  and the fardist is less than max, then use it.
-         if ( CameraAndFOV::mFarClippingDistance > nearDist && CameraAndFOV::mFarClippingDistance < farDist )
-            farDist = CameraAndFOV::mFarClippingDistance;
+			 //If the override > 0  and the fardist is less than max, then use it.
+			 if ( CameraAndFOV::mFarClippingDistance > nearDist && CameraAndFOV::mFarClippingDistance < farDist )
+				farDist = CameraAndFOV::mFarClippingDistance;
 	
-         if (!mCanvas.isValid())
-            mCanvas =static_cast<GuiCanvas*>( Sim::findObject("Canvas"));//Static cast should be ok, since the canvas is somewhat consistent.
+			 if (!mCanvas.isValid())
+				mCanvas =static_cast<GuiCanvas*>( Sim::findObject("Canvas"));//Static cast should be ok, since the canvas is somewhat consistent.
 
-         //Amount to increment to determine corners of near frustum
-         //These are based on the resolution of the screen and the distance of
-         // the near clipping plane.
+			 //Amount to increment to determine corners of near frustum
+			 //These are based on the resolution of the screen and the distance of
+			 // the near clipping plane.
       
-         //Equation for getting Near Plane dimensions
-         yAdd = tan( fOV / 2 ) * nearDist;
-         const GFXVideoMode gmode = mCanvas->getPlatformWindow()->getVideoMode();
-         div = (F32)gmode.resolution.x / (F32)gmode.resolution.y;
-         xAdd = yAdd * div;
+			 //Equation for getting Near Plane dimensions
+			 yAdd = tan( fOV / 2 ) * nearDist;
+			 const GFXVideoMode gmode = mCanvas->getPlatformWindow()->getVideoMode();
+			 div = (F32)gmode.resolution.x / (F32)gmode.resolution.y;
+			 xAdd = yAdd * div;
 
-         //Far Plane generation
-         cameraObject->getCameraTransform(&posf, &mTrans);
-         pView = mTrans.getForwardVector();
-         pPos = mTrans.getPosition();
+			 //Far Plane generation
+			 cameraObject->getCameraTransform(&posf, &mTrans);
+			 pView = mTrans.getForwardVector();
+			 pPos = mTrans.getPosition();
  
-		   //Far Plane generation
-         pCP = pPos + ( pView ) * farDist;
-         plFar.set( pCP , ( -1.0f * pView ) );
+			   //Far Plane generation
+			 pCP = pPos + ( pView ) * farDist;
+			 plFar.set( pCP , ( -1.0f * pView ) );
  
-		   //Near Plane generation
-         pCP = pPos + pView * nearDist;
-         plNear.set ( pCP , pView );
+			   //Near Plane generation
+			 pCP = pPos + pView * nearDist;
+			 plNear.set ( pCP , pView );
  
-         //Getting the camera's orientation vectors
-         right = mTrans.getRightVector();
-         up = mTrans.getUpVector();
+			 //Getting the camera's orientation vectors
+			 right = mTrans.getRightVector();
+			 up = mTrans.getUpVector();
 
-         //4 corners of near Plane
-         pTR = pCP + (right * xAdd) + (up * yAdd);
-         pTL = pCP - (right * xAdd) + (up * yAdd);
-         pBR = pCP + (right * xAdd) - (up * yAdd);
-         pBL = pCP - (right * xAdd) - (up * yAdd);
+			 //4 corners of near Plane
+			 pTR = pCP + (right * xAdd) + (up * yAdd);
+			 pTL = pCP - (right * xAdd) + (up * yAdd);
+			 pBR = pCP + (right * xAdd) - (up * yAdd);
+			 pBL = pCP - (right * xAdd) - (up * yAdd);
  
-         //Finally set this to the camera position
-         pCP = pPos;
+			 //Finally set this to the camera position
+			 pCP = pPos;
 
-         //Generate the side, top, and bottom planes
-         plLeft.set    ( pCP , pTL , pBL );
-         plTop.set     ( pCP , pTR , pTL );
-         plRight.set   ( pCP,  pBR , pTR );
-         plBottom.set  ( pCP,  pBL , pBR );
+			 //Generate the side, top, and bottom planes
+			 plLeft.set    ( pCP , pTL , pBL );
+			 plTop.set     ( pCP , pTR , pTL );
+			 plRight.set   ( pCP,  pBR , pTR );
+			 plBottom.set  ( pCP,  pBL , pBR );
 
-         F32 chkVal = -(farDist/2);
-         for (int i = 0; i < numObjects; i++)
-         {
-            SceneObject* object = objects[ i ];
-            //Decal Manager's getWorldBox returns something flaky.
-            //So let's not cull decals for now.
-            //Easiest way is to get the ID, if the ID is zero (DecalManager)
-            //then don't check bounds.
-            if ((S32)object->getId() !=0 )
-            {
-               //Always add Terrainblocks.
-               if (object->getTypeMask() & TerrainObjectType)
-               {
-                  object->prepRenderImage( this );
-                  continue;
-               }
-               bounds = object->getWorldBox();
+			 F32 chkVal = -(farDist/2);
+			 for (int i = 0; i < numObjects; i++)
+			 {
+				SceneObject* object = objects[ i ];
+				//Decal Manager's getWorldBox returns something flaky.
+				//So let's not cull decals for now.
+				//Easiest way is to get the ID, if the ID is zero (DecalManager)
+				//then don't check bounds.
+				if ((S32)object->getId() !=0 )
+				{
+				   //Always add Terrainblocks.
+				   if (object->getTypeMask() & TerrainObjectType)
+				   {
+					  object->prepRenderImage( this );
+					  continue;
+				   }
+				   bounds = object->getWorldBox();
 		 
-               if ((F32) plNear.whichSide(bounds) < chkVal) continue;
-               if ((F32) plFar.whichSide(bounds) < 0.0f) continue;
-               if ((F32) plLeft.whichSide(bounds) < 0.0f) continue;
-               if ((F32) plRight.whichSide(bounds) < 0.0f) continue;
-               if ((F32) plBottom.whichSide(bounds) < chkVal) continue;
-               if ((F32) plTop.whichSide(bounds) < chkVal) continue;
-            }
-		      //Add the object if it is within the view
-		      object->prepRenderImage( this );
-         }
-      }
+				   if ((F32) plNear.whichSide(bounds) < chkVal) continue;
+				   if ((F32) plFar.whichSide(bounds) < 0.0f) continue;
+				   if ((F32) plLeft.whichSide(bounds) < 0.0f) continue;
+				   if ((F32) plRight.whichSide(bounds) < 0.0f) continue;
+				   if ((F32) plBottom.whichSide(bounds) < chkVal) continue;
+				   if ((F32) plTop.whichSide(bounds) < chkVal) continue;
+				}
+				  //Add the object if it is within the view
+				  object->prepRenderImage( this );
+			 }
+		 }
+		 else
+			for (int i = 0; i < numObjects; i++)
+			{
+				SceneObject* object = objects[ i ];
+				object->prepRenderImage( this );
+			}
+	  }
    }
    else
    {
